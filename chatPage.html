@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat World</title>
+<style>
+    html, body { margin: 0px; }
+    .entireWrapper {
+        width: 500px;
+        height: 100%;
+        font-family: sans-serif;
+        margin: 5px 0px 0px 100px;
+    }
+    #personWrapper {
+        width: 500px;
+        height: 40px;
+        outline: 1px solid black;
+        background-color: rgb(200,200,200);
+    }
+    #question, #privateMsg {
+        display: inline-block;
+        font-size: 0.7em;
+        margin-left: 15px;
+    }
+    #whoYouAreWrapper {
+        display: inline-block;
+        outline: 0.8px solid black;
+        height: 30px;
+        margin-top: 4px;
+        margin-left: 3px;
+    }
+    #privateWrapper {
+        display: inline-block;
+        outline: 0.8px solid black;
+        height: 30px;
+        margin-top: 4px;
+        margin-left: 3px;
+        width: 140px;
+    }
+    #privateWho {
+        display: inline-block;
+        width: 135px;
+        height: 25px;
+        font-size:1em;
+    }
+    #whoYouAReWrapper, #whoYouAre {
+        width: 140px;
+    }
+    #whoYouAre {
+        height: 27px;
+        border: none;
+        font-size: 1em;
+    }
+    #chatRoom {
+        width: 500px;
+        height: 450px;
+        outline: 1px solid black;
+        background-color: rgb(240,240,240);
+    }
+    #chatRoomInside {
+        width: 500px;
+        height: 450px;
+        overflow: auto;
+    }
+    #chatInputWrapper {
+        width: 500px;
+        height: 135px;
+        outline: 1px solid black;
+        background-color: rgb(195,195,195);
+    }
+    #contentWrapper, #enterWrapper {
+        display: inline-block;
+        outline: 1px solid black;
+        margin: 22px 0px 0px 4.5px;
+    }
+    #contentWrapper {
+        margin: 8px 0px 0px 14px;
+        width: 365px;
+        height: 120px;
+    }
+    #content {
+        width: 360px;
+        height: 115px;
+        font-size: 0.7em;
+        resize: none;
+        overflow: scroll;
+    }
+    #enterWrapper, #submitChat {
+        width: 100px;
+        height: 70px;
+    }
+    #submitChat { 
+        border: none; }
+    .thisChat {
+        height: 15px;
+        margin-top:15px; 
+        margin-right:5px;
+        text-align:right;
+        font-size: 0.9em;
+    }
+    .otherChat {
+        height: 15px;
+        margin-top:15px; 
+        margin-left:5px;
+        font-size: 0.9em;
+    }
+    #enterPmWrapper {
+        display: inline-block;
+        margin-top: 10px;
+        margin-left: 2px;
+        vertical-align: top;
+    }
+    mark { 
+        display: inline-block; 
+        background-color: yellowgreen; }
+    .timeDiv { 
+        font-size: 0.47em; 
+        margin-top: -0.3px;
+    }
+</style>
+</head>
+<body>
+    <div class="entireWrapper">
+        <div id="personWrapper">
+            <div id="question"> Who Are You? : </div>
+            <div id="whoYouAreWrapper">
+                <input type="text" id="whoYouAre" name="person">
+            </div>
+            <div id="privateMsg"> Private MSG : </div>
+            <div id="privateWrapper">
+                <input type="text" id="privateWho" name="private">
+            </div>
+        </div>
+        <div id="chatRoom">
+            <div id="chatRoomInside">
+
+            </div>
+        </div>
+        <div id="chatInputWrapper">
+            <div id="contentWrapper">
+                <!-- <textarea id="yourContent" placeholder="Text here" name="content" form="iFoundYou"></textarea> -->
+                <input type="text" id="content" name="content" placeholder="Text here" ></textarea>
+            </div>
+            <div id="enterPmWrapper">
+                <div id="enterWrapper">
+                    <input type="button" id="submitChat" placeholder="Enter"> 
+                </div>  
+            <div>
+        </div>
+    </div>
+    <script>
+        // At the begining, Bring All HISTORY!!! ( After Refresh, for bringing the history, I need to set the below )
+        // INITIALIZING
+        var insideChat = document.getElementById("chatRoomInside")
+            insideChat.innerHTML= "";
+
+        document.getElementById("submitChat").addEventListener("click", function() {
+            console.log("AJAX CALL 2. SEND A NEW MESSAGE.");
+
+            // When PHP sends HTML the data
+            var xhttp = new XMLHttpRequest()
+            xhttp.onreadystatechange = function() {
+                if(xhttp.readyState === 4 && xhttp.status === 200 ) {
+                    var inObj = JSON.parse(xhttp.responseText); // 4. <PROCESS> Get String from PHP and make it as an OBJECT.
+                    if ( personValue !== "" ) {
+                        if( privateValue !== "" ){ // when there is input of PRIVATE
+                            if(inObj.person === personValue ) { // User Chat
+                                insideChat.innerHTML += " <div class='thisChat'> " 
+                                                            + "<mark>"
+                                                                + inObj.person
+                                                                + " TO "
+                                                                + inObj.private
+                                                                + " : "
+                                                                + inObj.content
+                                                                + " (PRIVATE MSG) "
+                                                            + "</mark>"
+                                                            + "<p class='timeDiv'>"
+                                                                    + inObj.timing
+                                                            + "</p>"
+                                                        + "</div>"
+                            }
+                            else { // Other Chat
+                                insideChat.innerHTML += " <div class='otherChat'> " 
+                                                            + inObj.content
+                                                            + "<p class='timeDiv'>"
+                                                                + inObj.timing
+                                                            + "</p>"
+                                                        + "</div>"
+                            }
+                        }
+                        else{ // when there is no input of PRIVATE
+                            if(inObj.person === personValue ) { // User Chat
+                                insideChat.innerHTML += " <div class='thisChat'> " 
+                                                            + inObj.content
+                                                            + "<p class='timeDiv'>"
+                                                                + inObj.timing
+                                                            + "</p>"
+                                                        + "</div>"
+                            }
+                            else { // Other Chat
+                                insideChat.innerHTML += " <div class='otherChat'> " 
+                                                            + inObj.person
+                                                            + " : "
+                                                            + inObj.content
+                                                            + "<p class='timeDiv'>"
+                                                                + inObj.timing
+                                                            + "</p>"
+                                                        + "</div>"
+                            }
+                        }
+                    }
+                insideChat.scrollTop = insideChat.scrollHeight; // when dive overflowes, I can see the last chat msg 
+                }
+            }
+
+            // 1. AT FIRST <PROCESS>, Send input to Server which is PHP
+            xhttp.open("POST", "chatPage.php");
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            var personValue = document.getElementById("whoYouAre").value;
+            var privateValue = document.getElementById("privateWho").value; 
+            var contentValue = document.getElementById("content").value;
+
+            // After Refresh, for bringing the history, chatInside is empty, so I put this code.
+            // Make Inputs in JSON form and Condition for it there is no input in PRIVATE & CONTENT
+            var myObj = { person: personValue };
+            if( privateValue !== "" ) { myObj.private = privateValue };
+            if( contentValue !== "" ) { myObj.content = contentValue };
+            myObj.activity = "NEW MESSAGE"; 
+
+            // var timeStamp = Math.round(new Date().getTime()/1000);
+            // ++timeStamp;
+            // myObj.chatCount = timeStamp;
+
+            xhttp.send(JSON.stringify(myObj)); // Make myOBj as a string, and then Send it to PHP
+        })
+
+
+        // When User input box loses focus, The HISTORY SYSTEM STARTS TO WORK!
+        document.getElementById("whoYouAre").addEventListener("blur", function() {
+
+            // To Deal with UPGATES EVERY SECOND.
+            setInterval(function() {
+                console.log("AJAX CALL 1. HISTORY DATA or UPDATES.");
+                var personValue = document.getElementById("whoYouAre").value;
+
+                    var xhttp = new XMLHttpRequest()
+                    xhttp.onreadystatechange = function() {
+                        if(xhttp.readyState === 4 && xhttp.status === 200 ) {
+                            var inObj = JSON.parse(xhttp.responseText); // 4. <PROCESS> Get String from PHP and make it as an OBJECT.
+
+                            for( var i=0 ; i < inObj.length ; i++) {
+                                if( inObj[i].person === personValue ) { // USER Chat
+                                    if( inObj[i].hasOwnProperty("private") ){ // Your Chat to Private
+                                        insideChat.innerHTML += " <div class='thisChat'> "
+                                                                    + "<mark>"
+                                                                        + inObj[i].person
+                                                                        + " TO "
+                                                                        + inObj[i].private
+                                                                        + " : "
+                                                                        + inObj[i].content
+                                                                        + " (PRIVATE MSG) "
+                                                                    + "</mark>"
+                                                                    + "<p class='timeDiv'>"
+                                                                        + inObj[i].timing
+                                                                    + "</p>"
+                                                                + "</div>";
+                                    } 
+                                    else { // Your Chat to everyone
+                                        insideChat.innerHTML += " <div class='thisChat'> " 
+                                                                    + inObj[i].content
+                                                                    + "<p class='timeDiv'>"
+                                                                        + inObj[i].timing
+                                                                    + "</p>"
+                                                                + "</div>";
+                                    }
+                                }
+                                else { // Other people's Chat
+                                    if( inObj[i].hasOwnProperty("private") ) {
+                                        if( inObj[i].private === personValue){ // Private MSG from other people
+                                            insideChat.innerHTML += " <div class='otherChat'>"
+                                                                        + "<mark>"
+                                                                            + inObj[i].person
+                                                                            + " TO "
+                                                                            + inObj[i].private
+                                                                            + " : "
+                                                                            + inObj[i].content
+                                                                            + " (PRIVATE MSG) "
+                                                                        + "</mark>"
+                                                                        + "<p class='timeDiv'>"
+                                                                            + inObj[i].timing
+                                                                        + "</p>"
+                                                                    + "</div>";
+
+                                        }
+                                    }
+                                    else { // Just MSG from other People
+                                        insideChat.innerHTML += " <div class='otherChat'>" 
+                                                                    + inObj[i].person
+                                                                    + " : "
+                                                                    + inObj[i].content 
+                                                                    + "<p class='timeDiv'>"
+                                                                        + inObj[i].timing
+                                                                    + "</p>"
+                                                                + "</div>"
+                                    }
+                                }
+                            }
+                            insideChat.scrollTop = insideChat.scrollHeight; 
+                        }
+                    }
+
+                    xhttp.open("POST", "chatPage.php");
+                    xhttp.setRequestHeader("Content-Type", "application/json");
+                    var chatLength = insideChat.getElementsByTagName("p").length;
+                    // console.log("This is chatLength : " + chatLength);
+
+                    var lastChatTime = "";
+                    if(chatLength !== 0 ) lastChatTime = insideChat.getElementsByTagName("p")[chatLength-1].innerText;
+                    else lastChatTime = 0
+                    // console.log("This is lastChatTime : " + lastChatTime);
+
+                    var myObj = {};
+                    if( personValue !== "" ) myObj.person = personValue;
+                    myObj.activity = "GET HISTORY"; 
+                    if( lastChatTime !== 0 ) myObj.currentChatTime = lastChatTime;
+
+                    xhttp.send(JSON.stringify(myObj)); 
+            }, 1000)
+        })
+    </script>
+</body>
+</html>
